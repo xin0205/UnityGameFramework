@@ -21,11 +21,19 @@ namespace UnityGameFramework.Editor.DataTableTools2
         {
             private static readonly IDictionary<string, DataProcessor> s_DataProcessors = new SortedDictionary<string, DataProcessor>();
 
+            private static readonly string[] DataProcessorAssemblyNames =
+            {
+    #if UNITY_2017_3_OR_NEWER
+                "UnityGameFramework.Editor",
+    #endif
+                "GameMain.Editor"
+            };
+
             static DataProcessorUtility()
             {
                 System.Type dataProcessorBaseType = typeof(DataProcessor);
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                System.Type[] types = assembly.GetTypes();
+               
+                System.Type[] types = Utility.Assembly.GetTypes(DataProcessorAssemblyNames);
                 for (int i = 0; i < types.Length; i++)
                 {
                     if (!types[i].IsClass || types[i].IsAbstract)

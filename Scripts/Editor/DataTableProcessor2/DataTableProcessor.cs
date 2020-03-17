@@ -254,6 +254,16 @@ namespace UnityGameFramework.Editor.DataTableTools2
             return m_DataProcessor[rawColumn].IsList;
         }
 
+        public bool IsCustom(int rawColumn)
+        {
+            if (rawColumn < 0 || rawColumn >= RawColumnCount)
+            {
+                throw new GameFrameworkException(Utility.Text.Format("Raw column '{0}' is out of range.", rawColumn.ToString()));
+            }
+
+            return m_DataProcessor[rawColumn].DataType == DataType.Custom;
+        }
+
         public System.Type GetType(int rawColumn)
         {
             if (rawColumn < 0 || rawColumn >= RawColumnCount)

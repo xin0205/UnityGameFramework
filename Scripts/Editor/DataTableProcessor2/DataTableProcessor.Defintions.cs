@@ -9,6 +9,7 @@ namespace UnityGameFramework.Editor.DataTableTools2
         System,
         Enum,
         Unity,
+        Custom,
     }
 
     public enum ContentType
