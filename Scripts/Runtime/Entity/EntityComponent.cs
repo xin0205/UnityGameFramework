@@ -7,10 +7,12 @@
 
 using GameFramework;
 using GameFramework.Entity;
+using GameFramework.Event;
 using GameFramework.ObjectPool;
 using GameFramework.Resource;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
@@ -52,6 +54,8 @@ namespace UnityGameFramework.Runtime
 
         [SerializeField]
         private EntityGroup[] m_EntityGroups = null;
+
+        public static Dictionary<int, TaskCompletionSource<IEntity>> EntityTcsDict = new Dictionary<int, TaskCompletionSource<IEntity>>();
 
         /// <summary>
         /// 获取实体数量。
@@ -161,6 +165,40 @@ namespace UnityGameFramework.Runtime
                     continue;
                 }
             }
+
+        }
+
+        private void OnDestroy()
+        {
+        }
+    
+        public Task<IEntity> ShowEntityAsync(int entityId, Type entityLogicType, string entityAssetName, string entityGroupName, int priority, object userData)
+        {
+            TaskCompletionSource<IEntity> loadEntityTcs = new TaskCompletionSource<IEntity>();
+
+            ShowEntity(entityId, entityLogicType, entityAssetName, entityGroupName, priority, userData);
+
+            EntityTcsDict.Add(entityId, loadEntityTcs);
+
+            return loadEntityTcs.Task;
+        }
+
+        public static TaskCompletionSource<IEntity> GetEntityTcs(int serialId)
+        {
+            if (EntityTcsDict.ContainsKey(serialId))
+                return EntityTcsDict[serialId];
+
+            return null;
+        }
+
+        public static void SetEntityTcs(int serialId, IEntity entity)
+        {
+            TaskCompletionSource<IEntity> tcs = GetEntityTcs(serialId);
+            if (tcs != null)
+            {
+                tcs.SetResult(entity);
+            }
+
         }
 
         /// <summary>
@@ -1090,6 +1128,9 @@ namespace UnityGameFramework.Runtime
         private void OnShowEntitySuccess(object sender, GameFramework.Entity.ShowEntitySuccessEventArgs e)
         {
             m_EventComponent.Fire(this, ShowEntitySuccessEventArgs.Create(e));
+
+            SetEntityTcs(e.Entity.Id, e.Entity);
+            EntityTcsDict.Remove(e.Entity.Id);
         }
 
         private void OnShowEntityFailure(object sender, GameFramework.Entity.ShowEntityFailureEventArgs e)
