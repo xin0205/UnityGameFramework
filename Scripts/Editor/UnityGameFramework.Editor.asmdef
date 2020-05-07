@@ -1,10 +1,17 @@
 {
     "name": "UnityGameFramework.Editor",
     "references": [
-        "UnityGameFramework.Runtime"
+        "UnityGameFramework.Runtime",
+        "GameFramework"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
 }

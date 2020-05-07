@@ -6,10 +6,12 @@
 //------------------------------------------------------------
 
 using GameFramework;
+using GameFramework.Event;
 using GameFramework.ObjectPool;
 using GameFramework.Resource;
 using GameFramework.UI;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
@@ -72,6 +74,8 @@ namespace UnityGameFramework.Runtime
 
         [SerializeField]
         private UIGroup[] m_UIGroups = null;
+
+        public static Dictionary<int, TaskCompletionSource<IUIForm>> UIFormTcsDict = new Dictionary<int, TaskCompletionSource<IUIForm>>();
 
         /// <summary>
         /// 获取界面组数量。
@@ -584,6 +588,37 @@ namespace UnityGameFramework.Runtime
             return m_UIManager.OpenUIForm(uiFormAssetName, uiGroupName, priority, pauseCoveredUIForm, userData);
         }
 
+
+        public Task<IUIForm> OpenUIFormAsync(string uiFormAssetName, string uiGroupName, int priority, bool pauseCoveredUIForm, object userData)
+        {
+            TaskCompletionSource<IUIForm> openUIFormTcs = new TaskCompletionSource<IUIForm>();
+
+            int uiformID = OpenUIForm(uiFormAssetName, uiGroupName, priority, pauseCoveredUIForm, userData);
+
+            UIFormTcsDict.Add(uiformID, openUIFormTcs);
+
+            return openUIFormTcs.Task;
+
+        }
+
+        public static TaskCompletionSource<IUIForm> GetUIFormTcs(int serialId)
+        {
+            if (UIFormTcsDict.ContainsKey(serialId))
+                return UIFormTcsDict[serialId];
+
+            return null;
+        }
+
+        public static void SetEntityTcs(int serialId, IUIForm entity)
+        {
+            TaskCompletionSource<IUIForm> tcs = GetUIFormTcs(serialId);
+            if (tcs != null)
+            {
+                tcs.SetResult(entity);
+            }
+
+        }
+
         /// <summary>
         /// 关闭界面。
         /// </summary>
@@ -701,6 +736,9 @@ namespace UnityGameFramework.Runtime
         private void OnOpenUIFormSuccess(object sender, GameFramework.UI.OpenUIFormSuccessEventArgs e)
         {
             m_EventComponent.Fire(this, OpenUIFormSuccessEventArgs.Create(e));
+
+            SetEntityTcs(e.UIForm.SerialId, e.UIForm);
+            UIFormTcsDict.Remove(e.UIForm.SerialId);
         }
 
         private void OnOpenUIFormFailure(object sender, GameFramework.UI.OpenUIFormFailureEventArgs e)

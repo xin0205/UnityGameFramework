@@ -5,6 +5,7 @@
 // Feedback: mailto:ellan@gameframework.cn
 //------------------------------------------------------------
 
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace UnityGameFramework.Runtime
@@ -12,7 +13,7 @@ namespace UnityGameFramework.Runtime
     /// <summary>
     /// 实体逻辑基类。
     /// </summary>
-    public abstract class EntityLogic : MonoBehaviour
+    public abstract class EntityLogic : SerializedMonoBehaviour
     {
         private bool m_Available = false;
         private bool m_Visible = false;
@@ -95,6 +96,8 @@ namespace UnityGameFramework.Runtime
                 return m_CachedTransform;
             }
         }
+
+        public Transform OriginalTransform { get => m_OriginalTransform; set => m_OriginalTransform = value; }
 
         /// <summary>
         /// 实体初始化。
