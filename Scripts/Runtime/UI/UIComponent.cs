@@ -593,25 +593,25 @@ namespace UnityGameFramework.Runtime
         {
             TaskCompletionSource<IUIForm> openUIFormTcs = new TaskCompletionSource<IUIForm>();
 
-            int uiformID = OpenUIForm(uiFormAssetName, uiGroupName, priority, pauseCoveredUIForm, userData);
+            UIFormTcsDict.Add(m_UIManager.Serial + 1, openUIFormTcs);
 
-            UIFormTcsDict.Add(uiformID, openUIFormTcs);
+            int uiformID = OpenUIForm(uiFormAssetName, uiGroupName, priority, pauseCoveredUIForm, userData);
 
             return openUIFormTcs.Task;
 
         }
 
-        public static TaskCompletionSource<IUIForm> GetUIFormTcs(int serialId)
+        public static TaskCompletionSource<IUIForm> GetUIFormTcs(int uiformID)
         {
-            if (UIFormTcsDict.ContainsKey(serialId))
-                return UIFormTcsDict[serialId];
+            if (UIFormTcsDict.ContainsKey(uiformID))
+                return UIFormTcsDict[uiformID];
 
             return null;
         }
 
-        public static void SetEntityTcs(int serialId, IUIForm entity)
+        public static void SetEntityTcs(int uiformID, IUIForm entity)
         {
-            TaskCompletionSource<IUIForm> tcs = GetUIFormTcs(serialId);
+            TaskCompletionSource<IUIForm> tcs = GetUIFormTcs(uiformID);
             if (tcs != null)
             {
                 tcs.SetResult(entity);

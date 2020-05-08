@@ -176,9 +176,9 @@ namespace UnityGameFramework.Runtime
         {
             TaskCompletionSource<IEntity> loadEntityTcs = new TaskCompletionSource<IEntity>();
 
-            ShowEntity(entityId, entityLogicType, entityAssetName, entityGroupName, priority, userData);
-
             EntityTcsDict.Add(entityId, loadEntityTcs);
+
+            ShowEntity(entityId, entityLogicType, entityAssetName, entityGroupName, priority, userData);
 
             return loadEntityTcs.Task;
         }
